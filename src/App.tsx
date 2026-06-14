@@ -261,13 +261,13 @@ export default function App() {
     setStaffList(loadedStaff);
 
     // Brand Name & Photo (default comes from env config)
-    const cachedName = localStorage.getItem("restaurant_name");
     const defaultName = cachedName || clientConfig.appName;
     setRestaurantName(defaultName);
     if (!cachedName) {
       localStorage.setItem("restaurant_name", clientConfig.appName);
     }
     setRestaurantPhoto(cachedPhoto || null);
+
 
 
     // Timezone
