@@ -503,7 +503,7 @@ export default function App() {
       <div id="guest-rsvp-manager-login-screen-wrap" className="min-h-screen bg-[#f3f6fa]">
         <div
           id="applet-toast-banner"
-          className={`fixed bottom-6 right-6 px-6 py-4 rounded-2xl bg-navy border border-gold/40 text-gold-light font-bold text-xs shadow-xl transition-all duration-300 transform z-[2100] flex items-center gap-2.5 ${
+          className={`fixed bottom-6 right-6 px-6 py-4 rounded-2xl bg-navy border border-gold text-gold font-bold text-xs shadow-xl transition-all duration-300 transform z-[2100] flex items-center gap-2.5 ${
             isToastVisible ? "translate-y-0 opacity-100 scale-100" : "translate-y-8 opacity-0 scale-95 pointer-events-none"
           }`}
         >
@@ -526,7 +526,7 @@ export default function App() {
       {/* Royal Luxury Toast Alert messages */}
       <div
         id="applet-toast-banner"
-        className={`fixed bottom-6 right-6 px-6 py-4 rounded-2xl bg-navy border border-gold/40 text-gold-light font-bold text-xs shadow-xl transition-all duration-300 transform z-[2100] flex items-center gap-2.5 ${
+        className={`fixed bottom-6 right-6 px-6 py-4 rounded-2xl bg-navy border border-gold text-gold font-bold text-xs shadow-xl transition-all duration-300 transform z-[2100] flex items-center gap-2.5 ${
           isToastVisible ? "translate-y-0 opacity-100 scale-100" : "translate-y-8 opacity-0 scale-95 pointer-events-none"
         }`}
       >
@@ -614,7 +614,7 @@ export default function App() {
 
         {/* Unsaved Changes Banner */}
         {hasUnsavedChanges && (
-          <div id="unsaved-changes-banner" className="bg-amber-500/10 border-b border-amber-500/20 px-6 py-2.5 flex items-center justify-between text-navy text-xs font-semibold animate-fadeIn">
+          <div id="unsaved-changes-banner" className="bg-amber-100 border-b border-amber-300 px-6 py-2.5 flex items-center justify-between text-navy text-xs font-semibold animate-fadeIn">
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse shrink-0" />
               <span className="truncate">You have unsaved changes in-memory (Autosave is suspended). Please save or synchronise manually.</span>
