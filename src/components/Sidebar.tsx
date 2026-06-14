@@ -91,7 +91,8 @@ export default function Sidebar({
         <div
           id="sidebar-overlay-backdrop"
           onClick={onClose}
-          className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-40 lg:hidden transition-opacity"
+          className="fixed inset-0 bg-slate-900/80 z-40 lg:hidden transition-opacity"
+
         />
       )}
 
