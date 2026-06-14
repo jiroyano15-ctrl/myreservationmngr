@@ -237,7 +237,7 @@ export default function Sidebar({
         <nav className="flex-1 px-4 py-6 overflow-y-auto space-y-4">
           {/* Main Views */}
           <div>
-            <div className="text-[11px] font-bold text-[#8a9ab5] uppercase tracking-wider px-3 mb-2.5">
+            <div className="text-[11px] font-bold text-slate-300 uppercase tracking-wider px-3 mb-2.5">
               Main
             </div>
             <div className="space-y-1">
@@ -249,8 +249,8 @@ export default function Sidebar({
                 }}
                 className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                   activeTab === "dashboard"
-                    ? "bg-gold/25 text-gold border-l-2 border-gold font-semibold"
-                    : "text-white/75 hover:bg-white/10 hover:text-white"
+                    ? "bg-amber-700 text-white border-l-2 border-amber-400 font-semibold"
+                    : "text-white hover:bg-slate-700 hover:text-white"
                 }`}
               >
                 <LayoutDashboard className="w-5 h-5 shrink-0" />
@@ -265,8 +265,8 @@ export default function Sidebar({
                 }}
                 className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                   activeTab === "reservations"
-                    ? "bg-gold/25 text-gold border-l-2 border-gold font-semibold"
-                    : "text-white/75 hover:bg-white/10 hover:text-white"
+                    ? "bg-amber-700 text-white border-l-2 border-amber-400 font-semibold"
+                    : "text-white hover:bg-slate-700 hover:text-white"
                 }`}
               >
                 <CalendarRange className="w-5 h-5 shrink-0" />
@@ -281,8 +281,8 @@ export default function Sidebar({
                 }}
                 className={`w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                   activeTab === "tablemap"
-                    ? "bg-gold/25 text-gold border-l-2 border-gold font-semibold"
-                    : "text-white/75 hover:bg-white/10 hover:text-white"
+                    ? "bg-amber-700 text-white border-l-2 border-amber-400 font-semibold"
+                    : "text-white hover:bg-slate-700 hover:text-white"
                 }`}
               >
                 <Map className="w-5 h-5 shrink-0" />
@@ -293,7 +293,7 @@ export default function Sidebar({
 
           {/* Quick Creator Operations */}
           <div>
-            <div className="text-[11px] font-bold text-[#8a9ab5] uppercase tracking-wider px-3 mb-2.5">
+            <div className="text-[11px] font-bold text-slate-300 uppercase tracking-wider px-3 mb-2.5">
               Actions
             </div>
             <div className="space-y-1">
@@ -303,7 +303,7 @@ export default function Sidebar({
                   openEntryModal("Reservation");
                   onClose();
                 }}
-                className="w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium text-white/75 hover:bg-white/10 hover:text-white transition-all text-left"
+                className="w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium text-white hover:bg-slate-700 hover:text-white transition-all text-left"
               >
                 <UserPlus className="w-5 h-5 shrink-0 text-emerald-400" />
                 <span>Add Reservation</span>
@@ -315,7 +315,7 @@ export default function Sidebar({
                   openEntryModal("Walk-In");
                   onClose();
                 }}
-                className="w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium text-white/75 hover:bg-white/10 hover:text-white transition-all text-left"
+                className="w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium text-white hover:bg-slate-700 hover:text-white transition-all text-left"
               >
                 <Footprints className="w-5 h-5 shrink-0 text-amber-400" />
                 <span>Log Walk-In</span>
@@ -325,7 +325,7 @@ export default function Sidebar({
 
           {/* Configuration and Tools */}
           <div>
-            <div className="text-[11px] font-bold text-[#8a9ab5] uppercase tracking-wider px-3 mb-2.5">
+            <div className="text-[11px] font-bold text-slate-300 uppercase tracking-wider px-3 mb-2.5">
               Tools
             </div>
             <div className="space-y-1">
@@ -336,7 +336,7 @@ export default function Sidebar({
                   openStaffModal();
                   onClose();
                 }}
-                className="w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium text-white/75 hover:bg-white/10 hover:text-white transition-all text-left cursor-pointer"
+                className="w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium text-white hover:bg-slate-700 hover:text-white transition-all text-left cursor-pointer"
               >
                 <Users className="w-5 h-5 shrink-0 text-blue-400" />
                 <span>Manage Staff</span>
@@ -348,7 +348,7 @@ export default function Sidebar({
                   openSyncModal();
                   onClose();
                 }}
-                className="w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium text-white/75 hover:bg-white/10 hover:text-white transition-all text-left cursor-pointer"
+                className="w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium text-white hover:bg-slate-700 hover:text-white transition-all text-left cursor-pointer"
               >
                 <Database className="w-5 h-5 shrink-0 text-[#e5c583]" />
                 <span>Database Hub</span>
@@ -370,7 +370,7 @@ export default function Sidebar({
                   exportCSV();
                   onClose();
                 }}
-                className="w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium text-white/75 hover:bg-white/10 hover:text-white transition-all text-left"
+                className="w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium text-white hover:bg-slate-700 hover:text-white transition-all text-left"
               >
                 <FileSpreadsheet className="w-5 h-5 shrink-0 text-teal-400" />
                 <span>Export CSV</span>
@@ -382,7 +382,7 @@ export default function Sidebar({
                   window.print();
                   onClose();
                 }}
-                className="w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium text-white/75 hover:bg-white/10 hover:text-white transition-all text-left"
+                className="w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium text-white hover:bg-slate-700 hover:text-white transition-all text-left"
               >
                 <Printer className="w-5 h-5 shrink-0 text-violet-400" />
                 <span>Print View</span>
@@ -392,14 +392,14 @@ export default function Sidebar({
         </nav>
 
         {/* Footer State indicators */}
-        <div className="p-5 border-t border-white/10 text-center">
-          <p className="text-[11px] text-[#8a9ab5] font-medium tracking-wide">
-            <span className="inline-flex items-center gap-1.5 text-emerald-450">
+        <div className="p-5 border-t border-slate-600 text-center">
+          <p className="text-[11px] text-slate-300 font-medium tracking-wide">
+            <span className="inline-flex items-center gap-1.5 text-emerald-300">
               <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse" />
               Offline Local Database
             </span>
           </p>
-          <p className="text-[9px] text-[#8a9ab5]/60 mt-1 uppercase font-semibold">
+          <p className="text-[9px] text-slate-400 mt-1 uppercase font-semibold">
             Vite & React Platform
           </p>
         </div>
