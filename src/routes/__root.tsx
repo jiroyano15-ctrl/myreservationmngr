@@ -11,6 +11,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { clientConfig } from "../lib/config";
 
 function NotFoundComponent() {
   return (
@@ -77,16 +78,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "reservation management" },
-      { name: "description", content: "Zip to Web converts local ZIP archives into a navigable web application for easy access." },
+      { title: clientConfig.appName },
+      { name: "description", content: `${clientConfig.appName} - Restaurant reservations, table maps, and staff management.` },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "reservation management" },
-      { property: "og:description", content: "Zip to Web converts local ZIP archives into a navigable web application for easy access." },
+      { property: "og:title", content: clientConfig.appName },
+      { property: "og:description", content: `${clientConfig.appName} - Restaurant reservations, table maps, and staff management.` },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
-      { name: "twitter:title", content: "reservation management" },
-      { name: "twitter:description", content: "Zip to Web converts local ZIP archives into a navigable web application for easy access." },
+      { name: "twitter:title", content: clientConfig.appName },
+      { name: "twitter:description", content: `${clientConfig.appName} - Restaurant reservations, table maps, and staff management.` },
       { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/bf8716b1-3e8b-4cd5-a003-cb98e0edbeef/id-preview-b48e7819--f1612479-fb88-48d0-a489-f83a088c88d7.lovable.app-1781478036682.png" },
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/bf8716b1-3e8b-4cd5-a003-cb98e0edbeef/id-preview-b48e7819--f1612479-fb88-48d0-a489-f83a088c88d7.lovable.app-1781478036682.png" },
     ],
