@@ -1,13 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import App from "../App";
+import { clientConfig } from "../lib/config";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Guest Manager - Restaurant Reservations" },
+      { title: `${clientConfig.appName} - Restaurant Reservations` },
       { name: "description", content: "Manage restaurant reservations, walk-ins, table maps, and staff with a beautiful real-time dashboard." },
-      { property: "og:title", content: "Guest Manager" },
+      { property: "og:title", content: clientConfig.appName },
       { property: "og:description", content: "Restaurant reservations, table maps, and staff management." },
     ],
   }),
