@@ -566,7 +566,7 @@ export default function EntryModal({
               >
                 <option value="Unassigned">-- Select Table (Auto/Unassigned) --</option>
                 {tables
-                  .filter(t => t.override !== "unavailable" || t.name === table)
+                  .filter(t => (t.override !== "unavailable" || t.name === table) && !occupiedTables.has(t.name))
                   .map((t, index) => (
                     <option key={index} value={t.name}>
                       {t.icon} {t.name} (Cap: {t.capacity})
