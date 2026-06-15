@@ -273,6 +273,30 @@ export default function EntryModal({
     }
   }, [table, date, isOpen, guestToEdit]);
 
+  // Compute tables occupied by guests currently Seated or Arrived on this date
+  const occupiedTables = React.useMemo(() => {
+    const set = new Set<string>();
+    if (!isOpen || !date) return set;
+    try {
+      const cached = localStorage.getItem(storageKey);
+      if (!cached) return set;
+      const guestList: Guest[] = JSON.parse(cached);
+      guestList.forEach(g => {
+        if (
+          g.date === date &&
+          g.table &&
+          g.table !== "Unassigned" &&
+          g.table !== table &&
+          (!guestToEdit || g.id !== guestToEdit.id) &&
+          (g.status === RsvpStatus.SEATED || g.status === RsvpStatus.ARRIVED)
+        ) {
+          set.add(g.table);
+        }
+      });
+    } catch {}
+    return set;
+  }, [isOpen, date, table, guestToEdit, guestsKey]);
+
   if (!isOpen) return null;
 
   const handleTypeSelect = (selectedType: EntryType) => {
@@ -566,7 +590,7 @@ export default function EntryModal({
               >
                 <option value="Unassigned">-- Select Table (Auto/Unassigned) --</option>
                 {tables
-                  .filter(t => t.override !== "unavailable" || t.name === table)
+                  .filter(t => (t.override !== "unavailable" || t.name === table) && !occupiedTables.has(t.name))
                   .map((t, index) => (
                     <option key={index} value={t.name}>
                       {t.icon} {t.name} (Cap: {t.capacity})
