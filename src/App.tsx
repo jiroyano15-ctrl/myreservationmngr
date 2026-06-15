@@ -325,9 +325,8 @@ export default function App() {
     if (!cloudLoaded) return;
     try {
       setIsSyncing(true);
-      await persistState({ data: { data: {
-        guests, tables, staffList, restaurantName, restaurantPhoto, timezone,
-      } as unknown as Record<string, unknown> } });
+      const blob = { guests, tables, staffList, restaurantName, restaurantPhoto, timezone };
+      await persistState({ data: { data: JSON.parse(JSON.stringify(blob)) } });
       setHasUnsavedChanges(false);
       showToast("☁️ Saved to your account");
     } catch (err) {
