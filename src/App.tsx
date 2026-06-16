@@ -502,12 +502,7 @@ export default function App() {
           <span className="w-2 h-2 rounded-full bg-gold animate-pulse" />
           <span>{toastMessage}</span>
         </div>
-        <LoginScreen 
-          onLoginSuccess={handleLoginSuccess} 
-          isSyncing={false}
-          scriptUrl=""
-          onSaveUrl={() => {}}
-        />
+        <LoginScreen isSyncing={false} />
       </div>
     );
   }
