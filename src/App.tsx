@@ -13,6 +13,9 @@ import { initialGuests, initialTables, initialStaff } from "./data/mockData";
 // Config
 import { clientConfig } from "./lib/config";
 
+// Auth
+import { supabase } from "@/integrations/supabase/client";
+
 // Specialized Views & Overlays
 import Sidebar from "./components/Sidebar";
 import DashboardView from "./components/DashboardView";
@@ -33,28 +36,28 @@ import {
 
 
 export default function App() {
-  const [loggedUsername, setLoggedUsername] = useState<string | null>(() => {
-    if (!clientConfig.authEnabled) return "guest";
-    return localStorage.getItem("guest_rsvp_mngr_active_username");
-  });
+  const [loggedUsername, setLoggedUsername] = useState<string | null>(null);
 
+  useEffect(() => {
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      setLoggedUsername(session?.user?.email ?? null);
+    });
+    supabase.auth.getSession().then(({ data }) => {
+      setLoggedUsername(data.session?.user?.email ?? null);
+    });
+    return () => { sub.subscription.unsubscribe(); };
+  }, []);
 
-  // Dynamic LocalStorage key generator per independent Gmail account to guarantee isolate sandbox state
+  // Per-account localStorage key namespace (UI prefs only — not credentials)
   const getAccountKey = (keyName: string) => {
     if (!loggedUsername) return `guest_rsvp_mngr_${keyName}`;
     const safeUser = loggedUsername.toLowerCase().trim().replace(/[@.]/g, "_");
     return `guest_rsvp_mngr_${safeUser}_${keyName}`;
   };
 
-  const handleLoginSuccess = (username: string) => {
-    const cleanEmail = username.trim().toLowerCase();
-    setLoggedUsername(cleanEmail);
-    localStorage.setItem("guest_rsvp_mngr_active_username", cleanEmail);
-  };
-
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     setLoggedUsername(null);
-    localStorage.removeItem("guest_rsvp_mngr_active_username");
     showToast("🔓 Logged out of your session successfully");
   };
 
@@ -499,12 +502,7 @@ export default function App() {
           <span className="w-2 h-2 rounded-full bg-gold animate-pulse" />
           <span>{toastMessage}</span>
         </div>
-        <LoginScreen 
-          onLoginSuccess={handleLoginSuccess} 
-          isSyncing={false}
-          scriptUrl=""
-          onSaveUrl={() => {}}
-        />
+        <LoginScreen isSyncing={false} />
       </div>
     );
   }
