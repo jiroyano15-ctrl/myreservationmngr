@@ -213,7 +213,9 @@ export default function EntryModal({
 
     if (match) {
       setRepeatGuestByPhone(match);
-      if (!hasPulledDetails) {
+      // Do NOT auto-fill prior info on new bookings — keep the form clean.
+      // Auto-fill only when editing an existing record.
+      if (guestToEdit && !hasPulledDetails) {
         setName(match.name);
         if (match.table && match.table !== "Unassigned") {
           setTable(match.table);
@@ -231,14 +233,6 @@ export default function EntryModal({
       }
     } else {
       setRepeatGuestByPhone(null);
-      const anyPhonePrefixMatch = allGuestsToMatch.some(g => {
-        if (!g.phone) return false;
-        const normG = String(g.phone).replace(/[\s\-\(\)\+\.]/g, "");
-        return normG.startsWith(normalizedClean) && (!guestToEdit || g.id !== guestToEdit.id);
-      });
-      if (!anyPhonePrefixMatch) {
-         setHasPulledDetails(false);
-      }
     }
   }, [phone, isOpen, guestToEdit, hasPulledDetails]);
 

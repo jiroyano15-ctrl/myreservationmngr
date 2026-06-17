@@ -187,7 +187,7 @@ export default function ReservationsView({
       (g.phone && String(g.phone).toLowerCase().includes(query.toLowerCase()));
 
     return matchesDate && matchesType && matchesStatus && matchesQuery;
-  });
+  }).sort((a, b) => Number(!!b.isWaitlist) - Number(!!a.isWaitlist));
 
   const totalPax = filteredGuests.filter(g => g.status !== RsvpStatus.CANCELLED).reduce((sum, g) => sum + (g.pax || 0), 0);
 

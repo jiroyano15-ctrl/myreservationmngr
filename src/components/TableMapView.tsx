@@ -32,6 +32,13 @@ export default function TableMapView({
 
   const [mapDate, setMapDate] = useState(getTodayString());
 
+  // Tick every minute to refresh time-based table state
+  const [, setNowTick] = useState(0);
+  React.useEffect(() => {
+    const id = setInterval(() => setNowTick(t => t + 1), 60_000);
+    return () => clearInterval(id);
+  }, []);
+
   // Dynamic mapDate reset when timezone changes
   React.useEffect(() => {
     setMapDate(getTodayString());
@@ -46,18 +53,51 @@ export default function TableMapView({
   const [selectedTableIndex, setSelectedTableIndex] = useState<number | null>(null);
   const [selectedOverride, setSelectedOverride] = useState<string>("");
 
+  // Parse a guest time string ("07:00 PM" or "19:00") into minutes since midnight
+  const parseGuestTimeToMinutes = (timeStr: string): number | null => {
+    if (!timeStr) return null;
+    const ampm = timeStr.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+    if (ampm) {
+      let h = parseInt(ampm[1], 10);
+      const m = parseInt(ampm[2], 10);
+      const ap = ampm[3].toUpperCase();
+      if (ap === "PM" && h !== 12) h += 12;
+      if (ap === "AM" && h === 12) h = 0;
+      return h * 60 + m;
+    }
+    const h24 = timeStr.match(/^(\d{1,2}):(\d{2})$/);
+    if (h24) return parseInt(h24[1], 10) * 60 + parseInt(h24[2], 10);
+    return null;
+  };
+
   // Helper: check table status for specific date
   const getTableState = (table: TableConfig, dateStr: string) => {
     if (table.override) return table.override; // "available" or "unavailable"
 
     // Find if a guest is assigned to this table on this date
-    // Statuses that count as holding a table: Confirmed, Seated, Pending
     const activeGuest = guests.find(
-      g => g.table === table.name && g.date === dateStr && [RsvpStatus.CONFIRMED, RsvpStatus.SEATED, RsvpStatus.PENDING].includes(g.status)
+      g => g.table === table.name && g.date === dateStr &&
+        [RsvpStatus.CONFIRMED, RsvpStatus.SEATED, RsvpStatus.PENDING, RsvpStatus.ARRIVED].includes(g.status)
     );
 
     if (!activeGuest) return "available";
-    return activeGuest.status === RsvpStatus.SEATED ? "seated" : "reserved"; // "seated" translates to occupied, "reserved" translates to blue
+
+    // ARRIVED or SEATED guests occupy the table
+    if (activeGuest.status === RsvpStatus.SEATED || activeGuest.status === RsvpStatus.ARRIVED) {
+      return "seated";
+    }
+
+    // For today: only mark as reserved within 1 hour before the reservation time
+    if (dateStr === getTodayString()) {
+      const resMin = parseGuestTimeToMinutes(activeGuest.time);
+      if (resMin === null) return "reserved";
+      const now = new Date();
+      const nowMin = now.getHours() * 60 + now.getMinutes();
+      return nowMin >= resMin - 60 ? "reserved" : "available";
+    }
+
+    // Future/past dates: show as reserved
+    return "reserved";
   };
 
   // Metrics counting
@@ -136,7 +176,8 @@ export default function TableMapView({
   // Get active linked guest for table on mapDate
   const getLinkedGuest = (tName: string) => {
     return guests.find(
-      g => g.table === tName && g.date === mapDate && [RsvpStatus.CONFIRMED, RsvpStatus.SEATED, RsvpStatus.PENDING].includes(g.status)
+      g => g.table === tName && g.date === mapDate &&
+        [RsvpStatus.CONFIRMED, RsvpStatus.SEATED, RsvpStatus.PENDING, RsvpStatus.ARRIVED].includes(g.status)
     );
   };
 
