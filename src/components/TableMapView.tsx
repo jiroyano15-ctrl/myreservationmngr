@@ -176,7 +176,8 @@ export default function TableMapView({
   // Get active linked guest for table on mapDate
   const getLinkedGuest = (tName: string) => {
     return guests.find(
-      g => g.table === tName && g.date === mapDate && [RsvpStatus.CONFIRMED, RsvpStatus.SEATED, RsvpStatus.PENDING].includes(g.status)
+      g => g.table === tName && g.date === mapDate &&
+        [RsvpStatus.CONFIRMED, RsvpStatus.SEATED, RsvpStatus.PENDING, RsvpStatus.ARRIVED].includes(g.status)
     );
   };
 
