@@ -36,7 +36,7 @@ export default function ConfirmModal({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 hover:bg-gray-150 rounded-xl text-gray-400 hover:text-gray-600 transition"
+            className="p-1.5 hover:bg-gray-100 rounded-xl text-gray-400 hover:text-gray-600 transition"
           >
             <X className="w-4 h-4" />
           </button>

@@ -111,7 +111,7 @@ export default function StaffManagerModal({
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 bg-slate-50 border-t border-slate-150 flex justify-end text-xs shrink-0">
+        <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex justify-end text-xs shrink-0 font-sans">
           <button
             onClick={onClose}
             className="px-5 py-2 bg-navy hover:bg-navy-mid text-white font-bold rounded-lg transition cursor-pointer"

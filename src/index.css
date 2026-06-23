@@ -1,17 +1,237 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300..900;1,300..900&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", "Inter", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 }
 
-@layer base {
-  body {
-    font-family: var(--font-sans);
-    background-color: #f8fafc;
-    color: #0f172a;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+/* Custom scrollbar behaviors for desktop views */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+@layer utilities {
+  .subtle-pulse {
+    animation: gentle-glow 2s infinite ease-in-out;
   }
 }
+
+@keyframes gentle-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0px rgba(43, 138, 62, 0);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(43, 138, 62, 0.15);
+  }
+}
+
+/* Print-optimized stylesheet overrides */
+@media print {
+  /* Hide the main software interface entirely */
+  body * {
+    visibility: hidden !important;
+  }
+  
+  /* Selectively make only our preview pane and its children visible or printable */
+  #printable-kitchen-manifest,
+  #printable-kitchen-manifest * {
+    visibility: visible !important;
+  }
+
+  /* Force absolute maximum sizing, layout resetting, and background guarantees */
+  #printable-kitchen-manifest {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 2cm !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: white !important;
+    color: black !important;
+  }
+
+  /* Prevent page breaks from splitting signatures or signature fields awkwardly */
+  tr {
+    page-break-inside: avoid !important;
+  }
+}
+
+/* Elegant Dark Mode styles */
+.dark {
+  color-scheme: dark;
+}
+
+.dark body, .dark html {
+  background-color: #0b0f19 !important; /* deep rich dark cosmic background */
+  color: #f8fafc !important;
+}
+
+/* Containers styled as bg-white */
+.dark .bg-white {
+  background-color: #111827 !important; /* slate-900 / gray-900 border */
+  color: #f1f5f9 !important;
+}
+
+/* Background canvas variables */
+.dark .bg-\[\#f8fafc\] {
+  background-color: #0b0f19 !important;
+}
+
+.dark .bg-slate-50 {
+  background-color: #1f2937 !important; /* dark slate border */
+  color: #f9fafb !important;
+}
+
+.dark .bg-slate-100 {
+  background-color: #374151 !important;
+  color: #f9fafb !important;
+}
+
+/* Borders */
+.dark .border-slate-200 {
+  border-color: #1f2937 !important;
+}
+
+.dark .border-slate-100 {
+  border-color: #1f2937 !important;
+}
+
+.dark .border-slate-150 {
+  border-color: #1f2937 !important;
+}
+
+.dark .border-slate-200\/80 {
+  border-color: #1f2937 !important;
+}
+
+.dark .border-slate-200\/60 {
+  border-color: #1f2937 !important;
+}
+
+.dark .border-slate-200\/85 {
+  border-color: #1f2937 !important;
+}
+
+/* Text styles */
+.dark .text-slate-900 {
+  color: #f9fafb !important;
+}
+
+.dark .text-slate-800 {
+  color: #f3f4f6 !important;
+}
+
+.dark .text-slate-700 {
+  color: #e5e7eb !important;
+}
+
+.dark .text-slate-650 {
+  color: #d1d5db !important;
+}
+
+.dark .text-slate-600 {
+  color: #9ca3af !important;
+}
+
+.dark .text-slate-500 {
+  color: #9ca3af !important;
+}
+
+.dark .text-slate-450 {
+  color: #9ca3af !important;
+}
+
+.dark .text-slate-400 {
+  color: #9ca3af !important;
+}
+
+/* Component specifics (inputs, select, etc.) */
+.dark input, 
+.dark select, 
+.dark textarea {
+  background-color: #111827 !important;
+  color: #f9fafb !important;
+  border-color: #1f2937 !important;
+}
+
+.dark input::placeholder {
+  color: #4b5563 !important;
+}
+
+.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #1f2937 !important;
+}
+
+.dark .divide-slate-250 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #1f2937 !important;
+}
+
+.dark .hover\:bg-slate-50:hover {
+  background-color: #1f2937 !important;
+}
+
+.dark .hover\:bg-slate-100:hover {
+  background-color: #374151 !important;
+}
+
+.dark tr:hover {
+  background-color: rgba(255, 255, 255, 0.02) !important;
+}
+
+.dark .bg-emerald-50\/60 {
+  background-color: rgba(16, 185, 129, 0.1) !important;
+  border-color: rgba(16, 185, 129, 0.2) !important;
+}
+
+.dark .text-emerald-800 {
+  color: #34d399 !important;
+}
+
+.dark .bg-emerald-50 {
+  background-color: rgba(16, 185, 129, 0.1) !important;
+  color: #34d399 !important;
+}
+
+.dark .text-slate-705 {
+  color: #e5e7eb !important;
+}
+
+.dark .border-emerald-100 {
+  border-color: rgba(16, 185, 129, 0.15) !important;
+}
+
+.dark .border-emerald-250\/50 {
+  border-color: rgba(16, 185, 129, 0.25) !important;
+}
+
+.dark .shadow-xl {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5) !important;
+}
+
+.dark .shadow-2xl {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6) !important;
+}
+
+.dark .shadow-sm {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3) !important;
+}
+
+

@@ -1,51 +1,60 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
-export enum RsvpStatus {
-  CONFIRMED = "Confirmed",
-  SEATED = "Seated",
-  PENDING = "Pending",
-  NO_SHOW = "No-Show",
-  CANCELLED = "Cancelled",
-  ARRIVED = "Arrived",
-  DEPARTED = "Departed"
+export interface KitchenItem {
+  Item_ID: string; // "code"
+  Category: string; // "category"
+  Item_Name: string; // "item"
+  Unit_Type: string; // "unit"
+  Rate: number; // "rate"
+  Status: string; // e.g. "Active"
+  isCustom?: boolean; // True if added dynamically in the front-end
+  Supplier?: string;
+  Purchase_Packaging?: string;
+  Purchase_Price?: number;
+  Inventory_Unit?: string;
+  Inventory_Price?: number;
+  Purchase_Count?: string | number;
+  Par_Level?: number; // Target level for personal stock management
+  On_Hand?: number;   // Current physical product on hand
 }
 
-export enum EntryType {
-  RESERVATION = "Reservation",
-  WALK_IN = "Walk-In"
+export interface OrderItem {
+  Timestamp?: string;
+  Item_ID: string; // "code"
+  Category: string; // "category"
+  Item_Name: string; // "item"
+  Quantity: number; // "quantity"
+  Unit_Type: string; // "unit"
+  Rate: number; // "rate"
+  Gross: number; // "gross" = Quantity * Rate
 }
 
-export interface Guest {
+export interface OrderRecord {
   id: string;
-  name: string;
-  phone?: string;
-  type: EntryType;
-  date: string; // YYYY-MM-DD
-  time: string; // "07:00 PM" or "19:00"
-  pax: number;
-  table: string; // Table name (such as "Table 5" or "Unassigned")
-  status: RsvpStatus;
-  staff?: string; // name of staff such as "Ana Cruz"
+  userId?: string;
+  timestamp: string;
+  items: OrderItem[];
+  totalQuantity: number;
+  totalGross: number;
   notes?: string;
-  arrival?: string;
-  mealPreference?: string;
-  dietaryRestrictions?: string[];
-  isWaitlist?: boolean;
 }
 
-export interface TableConfig {
-  name: string;
-  capacity: number;
-  icon: string; // Emoji, such as "🪑"
-  override: string; // "" (auto), "available", "unavailable"
+export interface AppUser {
+  uid: string;
+  email?: string | null;
+  displayName: string | null;
+  photoURL: string | null;
+  isAdmin: boolean;
+  isSubAccount?: boolean;
+  role?: string;
+  username?: string;
+  adminUid?: string;
 }
 
-export interface EventDetails {
-  title: string;
-  date: string;
-  venue: string;
-  time: string;
+export interface SubAccount {
+  username: string;
+  displayName: string;
+  password?: string;
+  role: string;
+  adminUid: string;
+  createdAt: string;
+  email?: string | null;
 }
