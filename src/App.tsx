@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { KitchenItem, OrderRecord, OrderItem, AppUser, SubAccount } from "./types";
-import { auth, googleProvider } from "./firebase";
-import { signInWithPopup } from "firebase/auth";
+import { supabase } from "./integrations/supabase/client";
 import { 
   loadInventoryFromStorage, 
   saveInventoryToStorage, 
