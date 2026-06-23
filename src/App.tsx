@@ -1093,17 +1093,20 @@ export default function App() {
   const handleGoogleSignIn = async () => {
     setAuthError(null);
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: { redirectTo: window.location.origin },
+      const { lovable } = await import("./integrations/lovable");
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: window.location.origin,
       });
-      if (error) throw error;
+      if (result.error) throw result.error;
+      // If result.redirected, browser is navigating to Google.
+      // Otherwise tokens are set; onAuthStateChange will pick it up.
     } catch (err: any) {
       console.error("Google authentication failed", err);
       setAuthError(err?.message || "Google Sign-In failed or was cancelled.");
       triggerToast(err?.message || "Google Sign-In failed or was cancelled.", "rose");
     }
   };
+
 
 
   const saveCatalogToTarget = useCallback((items: KitchenItem[]) => {
