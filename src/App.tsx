@@ -999,9 +999,9 @@ export default function App() {
 
   const handleSignOut = async () => {
     try {
-      await auth.signOut();
+      await supabase.auth.signOut();
     } catch (e) {
-      console.warn("Firebase signOut error:", e);
+      console.warn("Sign out error:", e);
     }
     localStorage.removeItem("kitchen_app_sandbox_admin_session");
     localStorage.removeItem("kitchen_app_subaccount_session");
@@ -1011,80 +1011,100 @@ export default function App() {
     triggerToast("Your session has been logged out successfully.", "info");
   };
 
+  const processGoogleUser = useCallback((user: { id: string; email?: string | null; user_metadata?: any }) => {
+    if (!user.email) {
+      triggerToast("Google login failed: account does not have a valid email address.", "rose");
+      return;
+    }
+    const emailLower = user.email.trim().toLowerCase();
+    const displayName = user.user_metadata?.full_name || user.user_metadata?.name || user.email;
+    const photoURL = user.user_metadata?.avatar_url || user.user_metadata?.picture || null;
+
+    const isAdminEmail =
+      emailLower === "jiroyano15@gmail.com" ||
+      emailLower === "jeromelpintero@gmail.com" ||
+      emailLower === "hajime015@gmail.com";
+
+    if (isAdminEmail) {
+      const appUser: AppUser = {
+        uid: user.id,
+        email: user.email,
+        displayName,
+        photoURL,
+        isAdmin: true,
+        isSubAccount: false,
+        role: "Admin",
+      };
+      localStorage.setItem("kitchen_app_sandbox_admin_session", JSON.stringify(appUser));
+      localStorage.removeItem("kitchen_app_subaccount_session");
+      setCurrentUser(appUser);
+      setIsLoginModalOpen(false);
+      triggerToast(`Welcome back, Administrator! Signed in as ${appUser.displayName}.`, "success");
+      return;
+    }
+
+    const localSubs = loadSubAccountsFromStorage();
+    const foundSub = localSubs.find(
+      (s) => s.email && s.email.trim().toLowerCase() === emailLower
+    );
+    if (foundSub) {
+      const appUser: AppUser = {
+        uid: "google-sub-" + foundSub.username,
+        email: user.email,
+        displayName: foundSub.displayName,
+        photoURL,
+        isAdmin: false,
+        isSubAccount: true,
+        role: foundSub.role,
+        username: foundSub.username,
+        adminUid: foundSub.adminUid,
+      };
+      localStorage.setItem("kitchen_app_subaccount_session", JSON.stringify(appUser));
+      localStorage.removeItem("kitchen_app_sandbox_admin_session");
+      setCurrentUser(appUser);
+      setIsLoginModalOpen(false);
+      triggerToast(`Staff logged in successfully as: ${foundSub.displayName}`, "success");
+      return;
+    }
+
+    // Not registered — sign back out
+    supabase.auth.signOut().catch(() => {});
+    triggerToast(
+      `Access Denied: Google account "${user.email}" is not registered as an Admin or Sub-Account staff member.`,
+      "rose"
+    );
+  }, []);
+
+  useEffect(() => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN" && session?.user) {
+        // Only run mapping when we don't already have a cached session
+        const hasCached =
+          localStorage.getItem("kitchen_app_sandbox_admin_session") ||
+          localStorage.getItem("kitchen_app_subaccount_session");
+        if (!hasCached) processGoogleUser(session.user as any);
+      }
+    });
+    return () => {
+      sub.subscription.unsubscribe();
+    };
+  }, [processGoogleUser]);
+
   const handleGoogleSignIn = async () => {
     setAuthError(null);
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
-      if (!user.email) {
-        triggerToast("Google login failed: account does not have a valid email address.", "rose");
-        return;
-      }
-
-      const emailLower = user.email.trim().toLowerCase();
-
-      // Check if user is Admin
-      const isAdminEmail = emailLower === "jiroyano15@gmail.com" || emailLower === "jeromelpintero@gmail.com" || emailLower === "hajime015@gmail.com";
-
-      if (isAdminEmail) {
-        const appUser: AppUser = {
-          uid: user.uid,
-          email: user.email,
-          displayName: user.displayName || "App Administrator",
-          photoURL: user.photoURL,
-          isAdmin: true,
-          isSubAccount: false,
-          role: "Admin"
-        };
-        localStorage.setItem("kitchen_app_sandbox_admin_session", JSON.stringify(appUser));
-        localStorage.removeItem("kitchen_app_subaccount_session");
-        setCurrentUser(appUser);
-        setIsLoginModalOpen(false);
-        triggerToast(`Welcome back, Administrator! Signed in as ${appUser.displayName}.`, "success");
-        return;
-      }
-
-      // Check if user is a registered sub-account
-      const localSubs = loadSubAccountsFromStorage();
-      const foundSub = localSubs.find(
-        s => s.email && s.email.trim().toLowerCase() === emailLower
-      );
-
-      if (foundSub) {
-        const appUser: AppUser = {
-          uid: "google-sub-" + foundSub.username,
-          email: user.email,
-          displayName: foundSub.displayName,
-          photoURL: user.photoURL,
-          isAdmin: false,
-          isSubAccount: true,
-          role: foundSub.role,
-          username: foundSub.username,
-          adminUid: foundSub.adminUid
-        };
-        localStorage.setItem("kitchen_app_subaccount_session", JSON.stringify(appUser));
-        localStorage.removeItem("kitchen_app_sandbox_admin_session");
-        setCurrentUser(appUser);
-        setIsLoginModalOpen(false);
-        triggerToast(`Staff logged in successfully as: ${foundSub.displayName}`, "success");
-        return;
-      }
-
-      // If neither, sign out from Firebase and reject
-      await auth.signOut();
-      triggerToast(`Access Denied: Google account "${user.email}" is not registered as an Admin or Sub-Account staff member.`, "rose");
-
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: window.location.origin },
+      });
+      if (error) throw error;
     } catch (err: any) {
       console.error("Google authentication failed", err);
-      if (err?.code === "auth/unauthorized-domain" || err?.message?.includes("unauthorized-domain")) {
-        setAuthError("unauthorized-domain");
-        triggerToast("Authentication failed: Unregistered domain. Please see instructions below.", "rose");
-      } else {
-        setAuthError(err?.message || "Google Sign-In failed or was cancelled.");
-        triggerToast(err?.message || "Google Sign-In failed or was cancelled.", "rose");
-      }
+      setAuthError(err?.message || "Google Sign-In failed or was cancelled.");
+      triggerToast(err?.message || "Google Sign-In failed or was cancelled.", "rose");
     }
   };
+
 
   const saveCatalogToTarget = useCallback((items: KitchenItem[]) => {
     saveInventoryToStorage(items, currentUser?.uid);
