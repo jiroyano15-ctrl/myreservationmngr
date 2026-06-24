@@ -566,6 +566,24 @@ export default function App() {
             </button>
           )}
 
+          {(currentUser?.isSubAccount || currentUser?.isAdmin) && (
+            <button
+              onClick={() => {
+                setActiveGlobalTab("staff_mgmt");
+                if (isMobileView) setIsMobileSidebarOpen(false);
+              }}
+              className={`flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-xs font-bold cursor-pointer transition-all ${
+                activeGlobalTab === "staff_mgmt"
+                  ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/10 border-l-4 border-emerald-600"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-50 border-l-4 border-transparent"
+              }`}
+            >
+              <Users className="h-4 w-4 shrink-0" />
+              <span className="flex-1 text-left font-sans">My Staff</span>
+            </button>
+          )}
+
+
           <button
             onClick={() => {
               setActiveGlobalTab("db_hub");
