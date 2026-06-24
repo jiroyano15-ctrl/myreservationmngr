@@ -19,6 +19,8 @@ import SidebarCart from "./components/SidebarCart";
 import OrderHistoryList from "./components/OrderHistoryList";
 import LoginScreen from "./components/LoginScreen";
 import ConsumptionDashboard from "./components/ConsumptionDashboard";
+import AccountsPanel from "./components/AccountsPanel";
+import { claimAdminRole } from "./lib/api/accounts.functions";
 import { 
   Check, 
   AlertCircle, 
@@ -395,7 +397,7 @@ export default function App() {
     }));
   }, []);
   const [customNotes, setCustomNotes] = useState("");
-  const [activeGlobalTab, setActiveGlobalTab] = useState<"catalog" | "cart" | "history" | "admin" | "db_hub" | "ordering" | "consumption">("catalog");
+  const [activeGlobalTab, setActiveGlobalTab] = useState<"catalog" | "cart" | "history" | "admin" | "db_hub" | "ordering" | "consumption" | "staff_mgmt">("catalog");
   
   // Kitchen workflow sections lift state up to share filter globally
   const [sectionsList, setSectionsList] = useState<string[]>(() => {
@@ -563,6 +565,24 @@ export default function App() {
               </span>
             </button>
           )}
+
+          {(currentUser?.isSubAccount || currentUser?.isAdmin) && (
+            <button
+              onClick={() => {
+                setActiveGlobalTab("staff_mgmt");
+                if (isMobileView) setIsMobileSidebarOpen(false);
+              }}
+              className={`flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-xs font-bold cursor-pointer transition-all ${
+                activeGlobalTab === "staff_mgmt"
+                  ? "bg-emerald-500 text-white shadow-md shadow-emerald-500/10 border-l-4 border-emerald-600"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-50 border-l-4 border-transparent"
+              }`}
+            >
+              <Users className="h-4 w-4 shrink-0" />
+              <span className="flex-1 text-left font-sans">My Staff</span>
+            </button>
+          )}
+
 
           <button
             onClick={() => {
@@ -1011,7 +1031,7 @@ export default function App() {
     triggerToast("Your session has been logged out successfully.", "info");
   };
 
-  const processGoogleUser = useCallback((user: { id: string; email?: string | null; user_metadata?: any }) => {
+  const processGoogleUser = useCallback(async (user: { id: string; email?: string | null; user_metadata?: any }) => {
     if (!user.email) {
       triggerToast("Google login failed: account does not have a valid email address.", "rose");
       return;
@@ -1025,21 +1045,56 @@ export default function App() {
       emailLower === "jeromelpintero@gmail.com" ||
       emailLower === "hajime015@gmail.com";
 
-    if (isAdminEmail) {
+    // Pull cloud roles (admin / sub_account) — recognizes co-admins promoted via Transfer Ownership.
+    let cloudRoles: string[] = [];
+    let cloudParent: string | null = null;
+    try {
+      const { getMyAccountContext } = await import("./lib/api/accounts.functions");
+      const ctx = await getMyAccountContext();
+      cloudRoles = ctx.roles ?? [];
+      cloudParent = ctx.parentUserId ?? null;
+    } catch (e) {
+      console.warn("getMyAccountContext failed", e);
+    }
+
+    if (isAdminEmail || cloudRoles.includes("admin")) {
       const appUser: AppUser = {
         uid: user.id,
         email: user.email,
         displayName,
         photoURL,
         isAdmin: true,
-        isSubAccount: false,
+        isSubAccount: cloudRoles.includes("sub_account"),
         role: "Admin",
       };
       localStorage.setItem("kitchen_app_sandbox_admin_session", JSON.stringify(appUser));
       localStorage.removeItem("kitchen_app_subaccount_session");
       setCurrentUser(appUser);
       setIsLoginModalOpen(false);
-      triggerToast(`Welcome back, Administrator! Signed in as ${appUser.displayName}.`, "success");
+      // Make sure hardcoded admin emails always have a cloud admin row.
+      if (isAdminEmail) {
+        try { await claimAdminRole(); } catch { /* best-effort */ }
+      }
+      triggerToast(`Welcome, Administrator! Signed in as ${appUser.displayName}.`, "success");
+      return;
+    }
+
+    if (cloudRoles.includes("sub_account")) {
+      const appUser: AppUser = {
+        uid: user.id,
+        email: user.email,
+        displayName,
+        photoURL,
+        isAdmin: false,
+        isSubAccount: true,
+        role: "Sub Account",
+        adminUid: cloudParent ?? undefined,
+      };
+      localStorage.setItem("kitchen_app_subaccount_session", JSON.stringify(appUser));
+      localStorage.removeItem("kitchen_app_sandbox_admin_session");
+      setCurrentUser(appUser);
+      setIsLoginModalOpen(false);
+      triggerToast(`Sub-account signed in as ${appUser.displayName}.`, "success");
       return;
     }
 
@@ -1070,10 +1125,11 @@ export default function App() {
     // Not registered — sign back out
     supabase.auth.signOut().catch(() => {});
     triggerToast(
-      `Access Denied: Google account "${user.email}" is not registered as an Admin or Sub-Account staff member.`,
+      `Access Denied: Google account "${user.email}" is not registered. Ask an admin to link your email as a sub-account.`,
       "rose"
     );
   }, []);
+
 
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
@@ -2439,6 +2495,29 @@ export default function App() {
                 </motion.div>
               )}
 
+              {activeGlobalTab === "staff_mgmt" && (currentUser?.isSubAccount || currentUser?.isAdmin) && (
+                <motion.div
+                  key="staff_mgmt"
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -15 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex flex-col gap-6"
+                >
+                  <div className="flex flex-col gap-1">
+                    <h2 className="font-display text-lg font-black text-slate-800 flex items-center gap-2">
+                      <Users className="h-5 w-5 text-emerald-600" />
+                      Staff Management
+                    </h2>
+                    <p className="text-xs text-slate-500 max-w-2xl">
+                      Create staff accounts that can sign in with username + password. Staff
+                      members get access only to the ordering function tied to this account.
+                    </p>
+                  </div>
+                  <AccountsPanel mode="sub_account" triggerToast={triggerToast} />
+                </motion.div>
+              )}
+
               {activeGlobalTab === "admin" && currentUser?.isAdmin && (
                 <motion.div
                   key="admin"
@@ -2448,6 +2527,8 @@ export default function App() {
                   transition={{ duration: 0.2 }}
                   className="flex flex-col gap-8"
                 >
+                  <AccountsPanel mode="admin" triggerToast={triggerToast} />
+
                   <div className="flex flex-col gap-2">
                     <div className="flex items-center gap-2">
                       <Shield className="h-5 w-5 text-amber-500 animate-pulse" />

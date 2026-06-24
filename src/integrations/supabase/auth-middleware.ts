@@ -6,8 +6,23 @@ import type { Database } from './types'
 
 
 
-export const requireSupabaseAuth = createMiddleware({ type: 'function' }).server(
-  async ({ next }) => {
+export const requireSupabaseAuth = createMiddleware({ type: 'function' })
+  .client(async ({ next }) => {
+    // Attach the current Supabase access token to outbound server-function calls
+    let token: string | undefined;
+    try {
+      const { supabase } = await import('./client');
+      const { data } = await supabase.auth.getSession();
+      token = data.session?.access_token;
+    } catch {
+      // ignore – server will reject if unauthenticated
+    }
+    return next({
+      sendContext: {},
+      headers: token ? { authorization: `Bearer ${token}` } : {},
+    });
+  })
+  .server(async ({ next }) => {
     
     const SUPABASE_URL = process.env.SUPABASE_URL;
     const SUPABASE_PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY;

@@ -104,7 +104,7 @@ export default function LoginScreen({
 
   const currentShift = getActiveShift();
 
-  const handleStaffSubmit = (e: React.FormEvent) => {
+  const handleStaffSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!subUsername || !subPassword) {
       triggerToast("Please enter both staff username and security password.", "rose");
@@ -112,42 +112,64 @@ export default function LoginScreen({
     }
 
     setIsSubmitting(true);
-    setTimeout(() => {
+    try {
+      // 1) Try cloud staff_accounts via server function.
       try {
-        const localSubs = loadSubAccountsFromStorage();
-        const found = localSubs.find(
-          s => s.username === subUsername.trim().toLowerCase() && s.password === subPassword
-        );
-
-        if (found) {
-          const appUser: AppUser = {
-            uid: "local-sub-" + found.username,
-            displayName: found.displayName,
-            photoURL: null,
-            isAdmin: false,
-            isSubAccount: true,
-            role: found.role,
-            username: found.username,
-            adminUid: found.adminUid
-          };
-          onSubAccountSignIn(appUser);
-          triggerToast(`Logged in successfully as ${found.displayName}`, "success");
-        } else {
-          // Check if there are no subaccounts configured yet, provide a helper toast
-          if (localSubs.length === 0) {
-            triggerToast("No staff accounts found. Log in as an Admin to create staff credentials first.", "info");
-          } else {
-            triggerToast("Invalid Staff Username or Security Password.", "rose");
-          }
+        const { staffLogin } = await import("../lib/api/accounts.functions");
+        const res = await staffLogin({
+          data: { username: subUsername.trim(), password: subPassword },
+        });
+        const staff = res.staff;
+        const appUser: AppUser = {
+          uid: `staff-${staff.id}`,
+          displayName: staff.displayName || staff.username,
+          photoURL: null,
+          isAdmin: false,
+          isSubAccount: false,
+          role: "Staff",
+          username: staff.username,
+          adminUid: staff.parentUserId,
+        };
+        onSubAccountSignIn(appUser);
+        triggerToast(`Welcome, ${appUser.displayName}!`, "success");
+        return;
+      } catch (cloudErr: any) {
+        // Fall through to legacy local check.
+        const cloudMsg = cloudErr?.message || "";
+        if (cloudMsg && !cloudMsg.includes("Invalid staff")) {
+          console.warn("Staff cloud login failed:", cloudMsg);
         }
-      } catch (err) {
-        console.error("Staff log in failed", err);
-        triggerToast("Authentication failed. Please verify credentials.", "rose");
-      } finally {
-        setIsSubmitting(false);
       }
-    }, 400); // Small realistic security delay
+
+      // 2) Legacy local sub-accounts fallback.
+      const localSubs = loadSubAccountsFromStorage();
+      const found = localSubs.find(
+        (s) => s.username === subUsername.trim().toLowerCase() && s.password === subPassword,
+      );
+      if (found) {
+        const appUser: AppUser = {
+          uid: "local-sub-" + found.username,
+          displayName: found.displayName,
+          photoURL: null,
+          isAdmin: false,
+          isSubAccount: true,
+          role: found.role,
+          username: found.username,
+          adminUid: found.adminUid,
+        };
+        onSubAccountSignIn(appUser);
+        triggerToast(`Logged in successfully as ${found.displayName}`, "success");
+      } else {
+        triggerToast("Invalid staff username or password.", "rose");
+      }
+    } catch (err) {
+      console.error("Staff log in failed", err);
+      triggerToast("Authentication failed. Please verify credentials.", "rose");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col justify-between font-sans selection:bg-emerald-500/20">
